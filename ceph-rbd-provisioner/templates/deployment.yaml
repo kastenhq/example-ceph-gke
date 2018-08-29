@@ -1,0 +1,23 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ include "ceph-rbd-provisioner.name" . }}
+  labels:
+{{ include "ceph-rbd-provisioner.labels" . | indent 4 }}
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+{{ include "ceph-rbd-provisioner.labels" . | indent 8 }}
+    spec:
+      containers:
+      - name: rbd-provisioner
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        env:
+        - name: PROVISIONER_NAME
+          value: {{ .Values.provisioner.name  }}
+      serviceAccount: {{ include "ceph-rbd-provisioner.name" . }}-sa
