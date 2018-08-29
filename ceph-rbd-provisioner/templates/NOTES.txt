@@ -1,0 +1,43 @@
+Ceph RBD provisioner is deployed.
+
+You should be able to create PVC with {{ .Values.storageClass.name }}
+
+Here is an example of PVC and test POD.
+
+```
+cat <<EOF | kubectl apply -f -
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: claim1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ .Values.storageClass.name }}
+  resources:
+    requests:
+      storage: 1Gi
+---
+kind: Pod
+apiVersion: v1
+metadata:
+  name: test-pod
+spec:
+  containers:
+  - name: test-pod
+    image: gcr.io/google_containers/busybox:1.24
+    command:
+    - "/bin/sh"
+    args:
+    - "-c"
+    - "touch /mnt/SUCCESS && exit 0 || exit 1"
+    volumeMounts:
+    - name: pvc
+      mountPath: "/mnt"
+  restartPolicy: "Never"
+  volumes:
+  - name: pvc
+    persistentVolumeClaim:
+      claimName: claim1
+EOF
+```

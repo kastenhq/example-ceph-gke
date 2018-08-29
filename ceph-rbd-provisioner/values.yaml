@@ -1,0 +1,24 @@
+# Default values for ceph-rbd-provisioner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: quay.io/external_storage/rbd-provisioner
+  tag: latest
+  pullPolicy: IfNotPresent
+
+provisioner:
+  name: ceph.com/rbd
+
+storageClass:
+  name: rbd
+
+cephCluster:
+  monitors: #list of monitors ip:port
+  pool: kube
+  adminId: admin
+  adminKey: # ceph auth get-key client.admin | base64
+  userId: kube
+  userKey: # ceph auth get-key client.kube | base64
+  imageFormat: "2"
+  imageFeatures: layering
