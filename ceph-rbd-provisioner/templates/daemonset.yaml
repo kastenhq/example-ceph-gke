@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "ceph-rbd-provisioner.name" . }}
+  labels:
+{{ include "ceph-rbd-provisioner.labels" . | indent 4 }}
+spec:
+  selector:
+    matchLabels:
+      name: {{ include "ceph-rbd-provisioner.name" . }}-rbd
+  template:
+    metadata:
+      labels:
+        name: {{ include "ceph-rbd-provisioner.name" . }}-rbd
+    spec:
+      containers:
+      - name: rbd-setup
+        image: gcr.io/google_containers/busybox:1.24
+        command:
+        - "/bin/sh"
+        args:
+        - "-c"
+        - "cp /rbd-bin/rbd /k8s-bin/rbd && chmod a+x /k8s-bin/rbd && tail -f /dev/null"
+        volumeMounts:
+        - name: k8s-bin
+          mountPath: "/k8s-bin"
+        - name: rbd-bin
+          mountPath: "/rbd-bin"
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - name: k8s-bin
+        hostPath:
+          path: /usr/bin
+      - name: rbd-bin
+        configMap:
+          name: {{ include "ceph-rbd-provisioner.name" . }}-rbd-cm

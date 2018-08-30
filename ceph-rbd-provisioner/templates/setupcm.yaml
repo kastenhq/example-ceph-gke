@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "ceph-rbd-provisioner.name" . }}-rbd-cm
+  labels:
+{{ include "ceph-rbd-provisioner.labels" . | indent 4 }}
+data:
+  # ceph auth get-key client.admin | base64
+  rbd: |
+    #! /bin/sh
+    docker run --rm --privileged --network host --cap-add=ALL -v /dev:/dev -v /lib/modules:/lib/modules gcr.io/kasten-images/github-kastenhq-ceph-tools:0.0.2 rbd "$@"
