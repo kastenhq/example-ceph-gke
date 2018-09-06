@@ -54,8 +54,23 @@ resource "google_compute_instance" "ceph" {
     // preemptible = true
   }
 
+  provisioner "file" {
+    source = "scripts/ceph-one-node-install.sh"
+    destination = "/tmp/ceph-one-node-install.sh"
+
+    connection {
+      type     = "ssh"
+      user     = "ubuntu"
+      private_key = "${file("${var.private_key_path}")}"
+      timeout  = "5m"
+      agent    = false
+     }
+  }
   provisioner "remote-exec" {
-    script = "scripts/ceph-one-node-install.sh"
+    inline = [
+      "chmod +x /tmp/ceph-one-node-install.sh",
+      "/tmp/ceph-one-node-install.sh ${var.ceph_release_name}",
+    ]
 
     connection {
       type     = "ssh"

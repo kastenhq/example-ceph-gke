@@ -12,7 +12,7 @@ variable "project_name" {
 
 variable "credentials_file_path" {
   description = "Path to the JSON file used to describe your account credentials"
-  #default     = "~/.gcloud/service-account-Terraform.json"
+  default     = "~/.gcloud/service-account-Terraform.json"
 }
 
 variable "private_key_path" {
@@ -33,4 +33,9 @@ variable "vm_type" {
 variable "cluster_name" {
   description = "Ceph cluster/vm name"
   default = "ceph-test"
+}
+
+variable "ceph_release_name" {
+  description = "Ceph release name. Check http://download.ceph.com/"
+  default = "debian-luminous"
 }

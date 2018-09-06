@@ -2,7 +2,7 @@
 # For easy debugging on console output
 set -x
 
-RELEASE=${1:debian-kraken}
+RELEASE=${1:debian-luminous}
 # Creating a directory based on timestamp... not unique enough
 mkdir -p ~/ceph-deploy/install-$(date +%Y%m%d%H%M%S) && cd $_
 
@@ -10,7 +10,7 @@ mkdir -p ~/ceph-deploy/install-$(date +%Y%m%d%H%M%S) && cd $_
 wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -a
 
 #install ceph by pointing release repo to your Ubuntu sources list.
-echo deb http://download.ceph.com/debian-kraken/ "$(lsb_release --codename --short)" main | sudo tee /etc/apt/sources.list.d/ceph.list
+echo deb http://download.ceph.com/${RELEASE=}/ "$(lsb_release --codename --short)" main | sudo tee /etc/apt/sources.list.d/ceph.list
 #Check & remove existing ceph setup
 ceph-remove () {
 ceph-deploy purge $HOST
