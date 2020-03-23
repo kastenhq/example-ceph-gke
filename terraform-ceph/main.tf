@@ -15,7 +15,7 @@ resource "google_compute_instance" "ceph" {
   machine_type = "${var.vm_type}"
   zone         = "${var.region_zone}"
 
-  tags = ["ceph", "testing"]
+    tags = ["ceph", "testing"]
 
   boot_disk {
     initialize_params {
@@ -51,7 +51,7 @@ resource "google_compute_instance" "ceph" {
   scheduling {
     // Using it for reduced-price because i just lab.
     // DON'T USE IT ON PRODUCTION SYSTEM !!
-    // preemptible = true
+    preemptible = false
   }
 
   provisioner "file" {
@@ -59,6 +59,7 @@ resource "google_compute_instance" "ceph" {
     destination = "/tmp/ceph-one-node-install.sh"
 
     connection {
+      host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
       user     = "ubuntu"
       private_key = "${file("${var.private_key_path}")}"
@@ -73,6 +74,7 @@ resource "google_compute_instance" "ceph" {
     ]
 
     connection {
+      host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
       user     = "ubuntu"
       private_key = "${file("${var.private_key_path}")}"
