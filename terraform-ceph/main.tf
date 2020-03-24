@@ -19,7 +19,7 @@ resource "google_compute_instance" "ceph" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-1604-xenial-v20170619a"
+      image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200317"
     }
   }
 
@@ -48,6 +48,10 @@ resource "google_compute_instance" "ceph" {
     }
   }
 
+  metadata = {
+    ssh-keys = "${var.ssh_username}:${file("${var.public_key_path}")}"
+  }
+
   scheduling {
     // Using it for reduced-price because i just lab.
     // DON'T USE IT ON PRODUCTION SYSTEM !!
@@ -61,7 +65,7 @@ resource "google_compute_instance" "ceph" {
     connection {
       host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
-      user     = "ubuntu"
+      user     = "${var.ssh_username}"
       private_key = "${file("${var.private_key_path}")}"
       timeout  = "5m"
       agent    = false
@@ -76,7 +80,7 @@ resource "google_compute_instance" "ceph" {
     connection {
       host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
-      user     = "ubuntu"
+      user     = "${var.ssh_username}"
       private_key = "${file("${var.private_key_path}")}"
       timeout  = "5m"
       agent    = false

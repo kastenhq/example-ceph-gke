@@ -2,7 +2,7 @@
 # For easy debugging on console output
 set -x
 
-RELEASE=${1:debian-luminous}
+RELEASE=${1:-"debian-octopus"}
 # Creating a directory based on timestamp... not unique enough
 mkdir -p ~/ceph-deploy/install-$(date +%Y%m%d%H%M%S) && cd $_
 
@@ -41,8 +41,7 @@ ceph-deploy install $HOST
 ceph-deploy mon create-initial
 
 #Create OSD & OSD with mounted drives /dev/sdb /dev/sdc /dev/sdd or /dev/disk/by-id/google-*
-ceph-deploy osd prepare $HOST:/dev/disk/by-id/google-osd-0 $HOST:/dev/disk/by-id/google-osd-1 $HOST:/dev/disk/by-id/google-osd-2
-ceph-deploy osd activate $HOST:/dev/disk/by-id/google-osd-0-part1 $HOST:/dev/disk/by-id/google-osd-1-part1 $HOST:/dev/disk/by-id/google-osd-2-part1
+ceph-deploy osd create $HOST --data /dev/disk/by-id/google-osd-0 --data /dev/disk/by-id/google-osd-1 --data /dev/disk/by-id/google-osd-2
 
 #Redistribute config and keys
 ceph-deploy admin $HOST
@@ -58,7 +57,8 @@ ceph -s
 
 ceph osd pool create kube 8 8
 ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
-
+rbd pool init kube
+ceph auth list
 
 echo "Admin base64 key: $(ceph auth get-key client.admin | base64)"
 echo "Kube base64 key: $(ceph auth get-key client.kube | base64)"
