@@ -1,7 +1,9 @@
 variable "osd_count" {
   default = "3"
 }
-
+variable "public_key_path" {
+  default = "~/.ssh/id_rsa.pub"
+}
 resource "google_compute_disk" "osd" {
   count = "${var.osd_count}"
   name  = "osd-disk-${count.index}"
@@ -47,9 +49,8 @@ resource "google_compute_instance" "ceph" {
       // If this block is omit, instance will not accessible from internet.
     }
   }
-
   metadata = {
-    ssh-keys = "${var.ssh_username}:${file("${var.public_key_path}")}"
+    ssh-keys = "ubuntu:${file("${var.public_key_path}")}"
   }
 
   scheduling {
@@ -65,7 +66,7 @@ resource "google_compute_instance" "ceph" {
     connection {
       host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
-      user     = "${var.ssh_username}"
+      user     = "ubuntu"
       private_key = "${file("${var.private_key_path}")}"
       timeout  = "5m"
       agent    = false
@@ -80,7 +81,7 @@ resource "google_compute_instance" "ceph" {
     connection {
       host = "${self.network_interface.0.access_config.0.nat_ip}"
       type     = "ssh"
-      user     = "${var.ssh_username}"
+      user     = "ubuntu"
       private_key = "${file("${var.private_key_path}")}"
       timeout  = "5m"
       agent    = false
