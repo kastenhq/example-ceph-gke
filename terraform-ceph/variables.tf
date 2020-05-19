@@ -37,5 +37,5 @@ variable "cluster_name" {
 
 variable "ceph_release_name" {
   description = "Ceph release name. Check http://download.ceph.com/"
-  default = "debian-luminous"
+  default = "debian-nautilus"
 }

@@ -1,43 +1,41 @@
 variable "osd_count" {
   default = "3"
 }
-variable "public_key_path" {
-  default = "~/.ssh/id_rsa.pub"
-}
+variable "public_key_path" {}
 resource "google_compute_disk" "osd" {
-  count = "${var.osd_count}"
+  count = var.osd_count
   name  = "osd-disk-${count.index}"
   type  = "pd-ssd"
-  zone  = "${var.region_zone}"
-  size  = "${var.disk_size}"
+  zone  = var.region_zone
+  size  = var.disk_size
 }
 
 resource "google_compute_instance" "ceph" {
-  name         = "${var.cluster_name}"
-  machine_type = "${var.vm_type}"
-  zone         = "${var.region_zone}"
+  name         = var.cluster_name
+  machine_type = var.vm_type
+  zone         = var.region_zone
 
     tags = ["ceph", "testing"]
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200317"
+      image = "ubuntu-os-cloud/ubuntu-minimal-1804-bionic-v20200415"
     }
   }
 
   attached_disk {
-    source = "${google_compute_disk.osd.0.self_link}"
+    source = google_compute_disk.osd.0.self_link
     // a unique device_name that will be reflected into the /dev/disk/by-id/google-* tree
     // of a Linux operating system running within the instance
     // I will use it for predictable/determined result. Thanks Google for this wise!
     device_name = "osd-0"
   }
   attached_disk {
-    source = "${google_compute_disk.osd.1.self_link}"
+    source = google_compute_disk.osd.1.self_link
     device_name = "osd-1"
   }
   attached_disk {
-    source = "${google_compute_disk.osd.2.self_link}"
+    source = google_compute_disk.osd.2.self_link
     device_name = "osd-2"
   }
 
@@ -64,10 +62,10 @@ resource "google_compute_instance" "ceph" {
     destination = "/tmp/ceph-one-node-install.sh"
 
     connection {
-      host = "${self.network_interface.0.access_config.0.nat_ip}"
+      host = self.network_interface.0.access_config.0.nat_ip
       type     = "ssh"
       user     = "ubuntu"
-      private_key = "${file("${var.private_key_path}")}"
+      private_key = file("${var.private_key_path}")
       timeout  = "5m"
       agent    = false
      }
@@ -79,10 +77,10 @@ resource "google_compute_instance" "ceph" {
     ]
 
     connection {
-      host = "${self.network_interface.0.access_config.0.nat_ip}"
+      host = self.network_interface.0.access_config.0.nat_ip
       type     = "ssh"
       user     = "ubuntu"
-      private_key = "${file("${var.private_key_path}")}"
+      private_key = file("${var.private_key_path}")
       timeout  = "5m"
       agent    = false
      }

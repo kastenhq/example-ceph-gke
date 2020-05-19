@@ -40,8 +40,10 @@ ceph-deploy install $HOST
 #Create Monitor
 ceph-deploy mon create-initial
 
+sleep 1
+
 #Create OSD & OSD with mounted drives /dev/sdb /dev/sdc /dev/sdd or /dev/disk/by-id/google-*
-ceph-deploy osd create $HOST --data /dev/disk/by-id/google-osd-0 --data /dev/disk/by-id/google-osd-1 --data /dev/disk/by-id/google-osd-2
+ceph-deploy osd create $HOST --data /dev/disk/by-id/google-osd-0 --data /dev/disk/by-id/google-osd-1 --data /dev/disk/by-id/google-osd-2 
 
 #Redistribute config and keys
 ceph-deploy admin $HOST
