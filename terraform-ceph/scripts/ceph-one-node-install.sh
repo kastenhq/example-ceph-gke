@@ -7,10 +7,9 @@ RELEASE=${1:-"debian-octopus"}
 mkdir -p ~/ceph-deploy/install-$(date +%Y%m%d%H%M%S) && cd $_
 
 #Install ceph key
-wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -a
-
+wget -q -O- 'https://download.ceph.com/keys/release.asc' | sudo apt-key add -
 #install ceph by pointing release repo to your Ubuntu sources list.
-echo deb http://download.ceph.com/${RELEASE=}/ "$(lsb_release --codename --short)" main | sudo tee /etc/apt/sources.list.d/ceph.list
+echo deb https://download.ceph.com/${RELEASE=}/ $(lsb_release -sc) main | sudo tee /etc/apt/sources.list.d/ceph.list
 #Check & remove existing ceph setup
 ceph-remove () {
 ceph-deploy purge $HOST
@@ -19,7 +18,7 @@ ceph-deploy forgetkeys
 }
 
 #Ready to update & install ceph-deploy
-sudo apt-get update && sudo apt-get install -y ceph-deploy
+sudo apt update && sudo apt -y install ceph-deploy
 
 #Deploy ceph
 HOST=$(hostname -s)
@@ -43,7 +42,7 @@ ceph-deploy mon create-initial
 sleep 1
 
 #Create OSD & OSD with mounted drives /dev/sdb /dev/sdc /dev/sdd or /dev/disk/by-id/google-*
-ceph-deploy osd create $HOST --data /dev/disk/by-id/google-osd-0 --data /dev/disk/by-id/google-osd-1 --data /dev/disk/by-id/google-osd-2 
+ceph-deploy osd create $HOST --data /dev/disk/by-id/google-osd-0 --data /dev/disk/by-id/google-osd-1 --data /dev/disk/by-id/google-osd-2
 
 #Redistribute config and keys
 ceph-deploy admin $HOST
